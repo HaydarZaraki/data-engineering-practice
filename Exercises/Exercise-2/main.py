@@ -9,7 +9,7 @@ def main():
     path = './Downloads'
     if not os.path.exists(path):
         subprocess.run(['mkdir','Downloads'])
-    url = 'https://www.ncei.noaa.gov/data/local-climatological-data/access/2021/?C=S;O=D'
+    url = 'https://www.ncei.noaa.gov/data/local-climatological-data/access/2021/?C=M;O=D'
     generic_url = 'https://www.ncei.noaa.gov/data/local-climatological-data/access/2021/'
     response = requests.get(url)
     soup = BeautifulSoup(response.text,'html.parser')
@@ -25,12 +25,9 @@ def main():
                     subprocess.run(['wget',f'{generic_url}{"".join(i.a.contents)}','-P',path])
                 break
 
-    df = pd.read_csv(f"{path}/{file_name}")
-    df = df[df.HourlyDryBulbTemperature.apply(lambda x: str(x).isdigit())]
-    print(df.shape[0])
-    print(f"\n\n\n\n\n {df.HourlyDryBulbTemperature.max(axis=0)} \n\n\n\n\n")
-    # df = df[df.HourlyDryBulbTemperature == df.HourlyDryBulbTemperature.max()]
-    # print(df.shape[0])
+    df = pd.read_csv(f"{path}/{file_name}",dtype={'HourlyDryBulbTemperature': 'str',})
+    df['HourlyDryBulbTemperature'] = df['HourlyDryBulbTemperature'].str.replace('s','').astype('float')
+    print(df[df['HourlyDryBulbTemperature'] == df['HourlyDryBulbTemperature'].max()])
     
     pass
 
